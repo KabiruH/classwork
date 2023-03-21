@@ -8,4 +8,5 @@ Rails.application.routes.draw do
   post "/create", to: "todos#create"
   put "/update/:id", to: "todos#update"
   delete "/destroy/:id", to: "todos#delete"
+  post "/login", to: "users#login"
 end

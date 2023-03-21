@@ -1,39 +1,37 @@
-# class TodosController < ApplicationController
 
-#     def get_todos
-#        render json:Todo.all
-#     end
-
-
-#     def create
-#         title = todo_params[:title]
-#         description = todo_params[:description]
-#         priority = todo_params[:priority]
-#     end
-
-
-#     # add toso in DB
-#     todo = Todo.create(title: title, description: description, priority: priority)
-#     render json: todo
-
-
-
-#     private
-#     def todo_params
-#         params.permit(:title, :description, :priority)
-#     end
-# end
 
 class TodosController < ApplicationController
+rescue_from ActiveRecord::RecordInvalid, with: :render_unprocessable_entity_response
     def get_todos
+        email = session[:email]
+        if email
+
         render json: Todo.all
+        else
+            render json: {message: "Not Authorized"}, status: :unauthorized
     end
+
+end
+   
+   
     def create
-        title = todo_params[:title]
-        description = todo_params[:description]
-        priority = todo_params[:priority]
-        todo = Todo.create(title: title, description: description, priority: priority)
-        render json: todo
+
+        # title = todo_params[:title]
+        # description = todo_params[:description]
+        # priority = todo_params[:priority]
+        
+        user = cookies[:email]
+        if user
+                            
+                todo = Todo.create(todo_params)
+                render json: todo
+       
+        else
+            render json: {message: "YOU ARE NOT LOGGED IN"},
+            status: 401
+        end
+        
+        
     end
 
     def update
@@ -54,4 +52,9 @@ class TodosController < ApplicationController
     def todo_params
         params.permit(:title, :description, :priority)
     end
+
+    def render_unprocessable_entity_response(invalid)
+        render json: {errors: invalid.record.errors.full_messages}, status: :unprocessable_entity
+    end
 end
+
